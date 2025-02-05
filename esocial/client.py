@@ -223,6 +223,25 @@ class WSClient(object):
         # result and batch_to_send is a lxml Element object
         return (result, batch_to_send)
 
+    def send_file(self, xml_content, clear_batch=True):
+        # Converte a string xml_content em um objeto XML (Element)
+        batch_to_send = etree.fromstring(xml_content)
+
+        # Caso necessário, valide o envelope
+        # self.validate_envelop('send', batch_to_send)
+
+        url = esocial._WS_URL[self.target]['send']
+        ws = self.connect(url)
+        BatchElement = ws.get_element('ns1:EnviarLoteEventos')
+        result = ws.service.EnviarLoteEventos(BatchElement(loteEventos=batch_to_send))
+
+        del ws
+        if clear_batch:
+            self.clear_batch()
+
+        # result e batch_to_send são objetos do tipo lxml.etree.Element
+        return (result, xml_content)
+
     def _make_retrieve_envelop(self, protocol_number):
         version = format_xsd_version(esocial.__xsd_versions__['retrieve']['version'])
         xmlns = 'http://www.esocial.gov.br/schema/lote/eventos/envio/consulta/retornoProcessamento/v{}'.format(version)
