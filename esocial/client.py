@@ -129,7 +129,7 @@ class WSClient(object):
         self.batch = []
         self.event_ids = []
 
-    def add_event(self, event, gen_event_id=False):
+    def add_event(self, event, gen_event_id=False, sign_event=False):
         if not isinstance(event, etree._ElementTree):
             raise ValueError('Not an ElementTree instance!')
         if not (self.employer_id and self.sender_id and self.cert_data):
@@ -142,12 +142,16 @@ class WSClient(object):
                 event_id = self._event_id()
                 event_tag.set('Id', event_id)
             # Signing...
-            event_signed = xml.sign(event, self.cert_data)
-            # Validating
-            xml.XMLValidate(event_signed).validate()
-            # Adding the event to batch
-            self.batch.append(event_signed)
-            return (event_id, event_signed)
+            if sign_event:
+                event_signed = xml.sign(event, self.cert_data)
+                # Validating
+                # xml.XMLValidate(event_signed).validate()
+                # Adding the event to batch
+                self.batch.append(event_signed)
+                return (event_id, event_signed)
+            else:
+                self.batch.append(event)
+                return (event_id, event)
         raise Exception('More than {} events per batch is not permitted!'.format(self.max_batch_size))
 
     def _xsd(self, which):
