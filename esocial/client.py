@@ -240,7 +240,7 @@ class WSClient(object):
             self.clear_batch()
 
         # result e batch_to_send são objetos do tipo lxml.etree.Element
-        return (result, xml_content)
+        return (result, batch_to_send)
 
     def _make_retrieve_envelop(self, protocol_number):
         version = format_xsd_version(esocial.__xsd_versions__['retrieve']['version'])
