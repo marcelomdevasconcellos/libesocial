@@ -65,11 +65,13 @@ class CustomHTTPSAdapter(HTTPAdapter):
 
 class WSClient(object):
 
-    def __init__(self, pfx_file=None, pfx_passw=None, employer_id=None, sender_id=None,
+    def __init__(self, pkcs12_data_dict=None, pfx_file=None, pfx_passw=None, employer_id=None, sender_id=None,
                  ca_file=serpro_ca_bundle, target=esocial._TARGET, esocial_version=esocial.__esocial_version__):
         self.ca_file = ca_file
         self.pfx_passw = pfx_passw
-        if pfx_file is not None:
+        if pkcs12_data_dict:
+            self.cert_data = pkcs12_data_dict
+        elif pfx_file is not None:
             self.cert_data = pkcs12_data(pfx_file, pfx_passw)
         else:
             self.cert_data = None
