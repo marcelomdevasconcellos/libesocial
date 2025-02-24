@@ -14,6 +14,8 @@
 # ==============================================================================
 import os
 import datetime
+import logging
+import traceback
 
 import requests
 
@@ -35,6 +37,7 @@ from zeep.transports import Transport
 
 from lxml import etree
 
+logger = logging.getLogger(__name__)
 
 here = os.path.abspath(os.path.dirname(__file__))
 serpro_ca_bundle = os.path.join(here, 'certs', 'serpro_full_chain.pem')
@@ -165,8 +168,11 @@ class WSClient(object):
     def validate_envelop(self, which, envelop):
         xmlschema = self._xsd(which)
         element_test = envelop
+        logger.info(f"Element test inicial: {element_test}")
         if not isinstance(envelop, etree._ElementTree):
             element_test = etree.ElementTree(envelop)
+        logger.info(f"Validando Envelope: {xmlschema}, : {self.esocial_version}")
+        logger.info(f"Element test final: {element_test}")
         xml.XMLValidate(element_test, xsd=xmlschema, esocial_version=self.esocial_version).validate()
 
     def _make_send_envelop(self, group_id):
@@ -212,7 +218,14 @@ class WSClient(object):
 
     def send(self, group_id=1, clear_batch=True):
         batch_to_send = self._make_send_envelop(group_id)
-        self.validate_envelop('send', batch_to_send)
+        logger.info(f"Tentando validar o XML batch_to_send:"
+                    f" group_id {group_id}, batch_to_send: {batch_to_send}")
+        try:
+            self.validate_envelop('send', batch_to_send)
+        except Exception as e:
+            logger.error(f"XML inválido: {e}", exc_info=True)
+            logger.error("Traceback completo: " + traceback.format_exc())
+
         # If no exception, batch XML is valid
         url = esocial._WS_URL[self.target]['send']
         ws = self.connect(url)
