@@ -219,7 +219,7 @@ class WSClient(object):
     def send(self, group_id=1, clear_batch=True):
         batch_to_send = self._make_send_envelop(group_id)
         logger.info(f"Tentando validar o XML batch_to_send:"
-                    f" group_id {group_id}, batch_to_send: {batch_to_send}")
+                    f" group_id {group_id}, batch_to_send: {str(batch_to_send)}")
         try:
             self.validate_envelop('send', batch_to_send)
         except Exception as e:
