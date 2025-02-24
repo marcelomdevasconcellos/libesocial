@@ -16,6 +16,7 @@ import os
 import types
 import codecs
 import json
+import logging
 
 from collections import OrderedDict
 
@@ -31,6 +32,8 @@ from dotmap import DotMap
 
 from esocial import utils
 from esocial import __esocial_version__
+
+logger = logging.getLogger(__name__)
 
 
 class XMLValidateError(Exception):
@@ -86,6 +89,7 @@ class XMLValidate(object):
         """Validate XML doc and throw an AssertionError exception if not valid.
         """
         if not self.isvalid():
+            logger.error(f'XML document is invalid. Errors: {self.last_errors}')
             raise XMLValidateError(self.last_errors)
 
 
