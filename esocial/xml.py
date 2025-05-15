@@ -38,8 +38,11 @@ logger = logging.getLogger(__name__)
 
 class XMLValidateError(Exception):
     def __init__(self, list_log, message='XML is invalid. {} error(s) found'):
-        self.message = message.format(len(list_log))
-        self.errors = [e.message for e in list_log]
+        errors = [e.message for e in list_log]
+        self.errors = errors
+        errors_txt = ', '.join(self.errors)
+        temp_message = f'{len(list_log)} ({errors_txt})'
+        self.message = message.format(temp_message)
         super().__init__(self.message)
 
 
