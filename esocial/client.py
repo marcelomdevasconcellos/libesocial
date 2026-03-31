@@ -223,7 +223,7 @@ class WSClient(object):
         try:
             self.validate_envelop('send', batch_to_send)
         except Exception as e:
-            logger.error(f"XML inválido: {e}", exc_info=True)
+            logger.error(f"XML inválido: {e}, batch_to_send: {str(batch_to_send)}", exc_info=True)
             logger.error("Traceback completo: " + traceback.format_exc())
 
         # If no exception, batch XML is valid
