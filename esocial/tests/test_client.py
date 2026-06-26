@@ -15,9 +15,29 @@
 import pytest
 import requests
 
+from OpenSSL import crypto
+
 from esocial import client
 
 from esocial.tests import ws_factory
+
+
+def _certificate_common_names(pem_file):
+    certs = []
+    end_marker = b'-----END CERTIFICATE-----'
+
+    with open(pem_file, 'rb') as fp:
+        bundle = fp.read()
+
+    for block in bundle.split(end_marker):
+        if b'-----BEGIN CERTIFICATE-----' not in block:
+            continue
+        cert_pem = block[block.index(b'-----BEGIN CERTIFICATE-----'):] + end_marker
+        cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert_pem)
+        certs.append(cert.get_subject().CN)
+
+    return certs
+
 
 def test_client_target():
     target_tests = [
@@ -31,6 +51,15 @@ def test_client_target():
     for t in target_tests:
         ws = client.WSClient(target=t[0])
         assert ws.target == t[1], 'Expected target {}. Got {}'.format(t[1], ws.target)
+
+
+def test_default_ca_bundle_contains_current_esocial_chain():
+    common_names = _certificate_common_names(client.serpro_ca_bundle)
+
+    assert 'GlobalSign Root R46' in common_names
+    assert 'AC SERPRO AR46 OV TLS CA 2025' in common_names
+    assert 'Sectigo Public Server Authentication Root R46' in common_names
+    assert 'Sectigo Public Server Authentication CA OV R36' in common_names
 
 
 def test_client_connect():

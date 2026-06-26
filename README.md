@@ -277,26 +277,24 @@ else:
     print(str(xmlschema.last_error))
 ```
 
-# Certificados do ICP-Brasil no lado cliente
+# Certificados no lado cliente
 
-De acordo com o [manual do desenvolvedor do eSocial, versão 1.10](https://www.gov.br/esocial/pt-br/documentacao-tecnica/manuais/manualorientacaodesenvolvedoresocialv1-10.pdf) (página 114), é necessário instalar a cadeia de certificação do eSocial para poder utilizar os *Webservices*. Que são:
+O eSocial pode trocar a cadeia de certificação TLS dos *Webservices*. A atualização oficial de 26/06/2026 indica a cadeia Sectigo:
 
-**Raiz**
+- **Sectigo Public Server Authentication Root R46**
+- **Sectigo Public Server Authentication CA OV R36**
 
-**[AC - Primeiro Nível](http://acraiz.icpbrasil.gov.br/credenciadas/RFB/v2/p/AC_Secretaria_da_Receita_Federal_do_Brasil_v3.crt)**
+Na mesma data, os endpoints oficiais de envio, consulta e produção restrita também apresentavam a cadeia:
 
-**[AC - Segundo Nível](http://acraiz.icpbrasil.gov.br/credenciadas/RFB/v2/Autoridade_Certificadora_do_SERPRO_RFB_SSL.crt)**
+- **GlobalSign Root R46**
+- **AC SERPRO AR46 OV TLS CA 2025**
 
-Primeiro, o manual está desatualizado, sendo que os servidores do eSocial estão utilizando a versão 10 do certificado **Raiz** do ICP-Brasil:
+Utilizando a **LIBeSocial**, não há necessidade de instalar esses certificados na máquina que vai enviar os eventos. As cadeias necessárias já estão agrupadas no arquivo "**serpro_full_chain.pem**" na pasta **certs** que acompanha a **LIBeSocial**.
 
-[Raiz v10](http://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv10.crt)
-
-Segundo, utilizando a **LIBeSocial** não há necessidade de instalar nenhum desses certificados na máquina que vai enviar os eventos. Os respectivos certificados já estão "agrupados" no arquivo "**serpro_full_chain.pem**" na pasta **certs** que acompanha a **LIBeSocial**.
-
-Entretando, certificados expiram e/ou são trocados. Se necessário, para criar um novo arquivo com a cadeia de certificados novos, após baixar os devidos arquivos `.crt` (que devem estar no formato *PEM*), é só concatenar os arquivos em um único. Exemplo em Linux/Unix:
+Entretanto, certificados expiram e/ou são trocados. Se necessário, para criar um novo arquivo com a cadeia de certificados novos, após baixar os devidos arquivos `.crt` e convertê-los para *PEM*, é só concatenar os arquivos em um único. Exemplo em Linux/Unix:
 
 ```
-$ cat ICP-Brasilv10.crt AC_Secretaria_da_Receita_Federal_do_Brasil_v3.crt Autoridade_Certificadora_do_SERPRO_RFB_SSL.crt > novo_arquivo_certificados.pem
+$ cat root.pem intermediaria.pem > novo_arquivo_certificados.pem
 ```
 
 E informar esse arquivo ao instanciar o cliente *esocial*:
